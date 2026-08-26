@@ -212,7 +212,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                   <input
                     type="number"
                     min="0.000001"
-                    step="0.001"
+                    step="0.000001"
                     value={form.floorPriceGEN}
                     onChange={(e) => setForm({ ...form, floorPriceGEN: e.target.value })}
                     placeholder="0.01"
