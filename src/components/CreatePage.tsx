@@ -159,20 +159,29 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                 </div>
               </div>
 
-              {/* Image URL */}
-              <div>
-                <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
-                  Image URL
-                </label>
-                <input
-                  type="url"
-                  value={form.imageUrl}
-                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                  placeholder="https://... link to your image"
-                  className="w-full px-4 py-3 border border-black/10 rounded-xl text-sm focus:outline-none focus:border-black/30 transition-colors"
-                />
-              </div>
-
+             {/* Image Upload */}
+<div>
+  <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
+    Image
+  </label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      setForm({ ...form, imageUrl: data.url });
+    }}
+    className="w-full px-4 py-3 border border-black/10 rounded-xl text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-black file:text-white file:text-xs"
+  />
+  {form.imageUrl && (
+    <img src={form.imageUrl} alt="preview" className="mt-2 w-24 h-24 object-cover rounded-lg" />
+  )}
+</div>
               {/* Description */}
               <div>
                 <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
