@@ -42,6 +42,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
     const errs: FormErrors = {};
     if (!form.title.trim()) errs.title = "Title is required";
     else if (form.title.length > 100) errs.title = "Max 100 characters";
+    if (!form.imageUrl.trim()) errs.imageUrl = "Image is required";
     if (!form.description.trim()) errs.description = "Description is required";
     else if (form.description.length > 500) errs.description = "Max 500 characters";
     if (!form.floorPriceGEN || parseFloat(form.floorPriceGEN) <= 0)
@@ -162,7 +163,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
              {/* Image Upload */}
 <div>
   <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
-    Image
+    Image <span className="text-red-400">*</span>
   </label>
   <input
     type="file"
@@ -181,6 +182,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
   {form.imageUrl && (
     <img src={form.imageUrl} alt="preview" className="mt-2 w-24 h-24 object-cover rounded-lg" />
   )}
+  {errors.imageUrl && <p className="text-xs text-red-500 mt-1">{errors.imageUrl}</p>}
 </div>
               {/* Description */}
               <div>
