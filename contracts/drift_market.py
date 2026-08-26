@@ -1,4 +1,4 @@
-# { "Depends": "py-genlayer:test" }
+# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 from genlayer import *
 import typing
 import json
@@ -101,13 +101,13 @@ Respond ONLY with JSON: {{"adjustment_percent": <int -15..20>, "reasoning": "<on
 """
 
         def get_adjustment() -> str:
-            res = gl.exec_prompt(prompt)
+            res = gl.nondet.exec_prompt(prompt)
             res = res.replace("```json", "").replace("```", "").strip()
             data = json.loads(res)
             pct = max(-15, min(20, int(data["adjustment_percent"])))
             return json.dumps({"adjustment_percent": pct})
 
-        result = gl.eq_principle_prompt_comparative(
+        result = gl.eq_principle.prompt_comparative(
             get_adjustment,
             principle="The adjustment_percent values should not differ by more than 5 percentage points.",
         )

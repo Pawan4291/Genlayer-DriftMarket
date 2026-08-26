@@ -52,6 +52,7 @@ export function useGenLayer(walletAddress: string | null) {
       floorPriceWei: string;
       supply: number;
       feeWei?: string;
+      imageUrl?: string;
     }): Promise<string> => {
       setIsPending(true);
       setError(null);

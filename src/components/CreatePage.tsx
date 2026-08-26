@@ -19,6 +19,7 @@ interface FormData {
   description: string;
   floorPriceGEN: string;
   supply: string;
+  imageUrl: string;
 }
 
 type FormErrors = Partial<FormData>;
@@ -29,6 +30,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
     description: "",
     floorPriceGEN: "",
     supply: "1",
+    imageUrl: "",
   });
   const [step, setStep] = useState<"form" | "pending" | "success">("form");
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -155,6 +157,20 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                   {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                   <p className="text-xs text-black/25 ml-auto">{form.title.length}/100</p>
                 </div>
+              </div>
+
+              {/* Image URL */}
+              <div>
+                <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
+                  Image URL
+                </label>
+                <input
+                  type="url"
+                  value={form.imageUrl}
+                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                  placeholder="https://... link to your image"
+                  className="w-full px-4 py-3 border border-black/10 rounded-xl text-sm focus:outline-none focus:border-black/30 transition-colors"
+                />
               </div>
 
               {/* Description */}
@@ -356,7 +372,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                 <button
                   onClick={() => {
                     setStep("form");
-                    setForm({ title: "", description: "", floorPriceGEN: "", supply: "1" });
+                    setForm({ title: "", description: "", floorPriceGEN: "", supply: "1", imageUrl: "" });
                     setTxHash(null);
                     setErrors({});
                   }}
