@@ -17,6 +17,7 @@ export interface ListingData {
   sold: string;
   cyclesRun: string;
   active: boolean;
+  imageUrl?: string | null;
   lastSyncedAt: string;
   createdAt: string;
 }
@@ -104,6 +105,13 @@ export default function ListingCard({
         "bg-black/10"
       }`} />
 
+      {listing.imageUrl && (
+        <img
+          src={listing.imageUrl}
+          alt={listing.title}
+          className="w-full h-48 object-cover"
+        />
+      )}
       <div className="p-5">
         {/* Title & ID */}
         <div className="flex items-start justify-between mb-3">
