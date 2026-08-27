@@ -171,6 +171,10 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
     onChange={async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be under 5MB");
+        return;
+      }
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
