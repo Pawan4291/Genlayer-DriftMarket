@@ -69,6 +69,14 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
       });
       setTxHash(hash);
       setStep("success");
+      // Insert an optimistic row immediately so it shows on Market right away,
+      // without waiting for full finality (which can take hours by design).
+      await fetch("/api/listings/optimistic", {
+        method: "POST",
+        body: JSON.stringify({ txHash: hash, title: form.title, description: form.description,
+          floorPriceWei, supply: parseInt(form.supply, 10), imageUrl: form.imageUrl,
+          seller: walletAddress }),
+      });
     } catch {
       setStep("form");
     }

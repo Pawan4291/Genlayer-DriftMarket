@@ -26,6 +26,7 @@ export const listings = pgTable(
     sold: text("sold").notNull(),
     cyclesRun: text("cycles_run").notNull(),
     active: boolean("active").notNull().default(true),
+    imageUrl: text("image_url"),
     lastSyncedAt: timestamp("last_synced_at").notNull().defaultNow(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
