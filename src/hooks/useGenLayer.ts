@@ -71,15 +71,10 @@ export function useGenLayer(walletAddress: string | null) {
           ],
           value: BigInt(params.feeWei ?? "0"),
         });
-        await client.waitForTransactionReceipt({
-          hash: txHash,
-          status: TransactionStatus.ACCEPTED,
-          retries: 60,
-          interval: 5000,
-        });
         setLastTxHash(txHash as string);
-        // Trigger sync after listing
-        await fetch("/api/sync", { method: "POST" }).catch(() => {});
+        // Don't block on finality (can take hours by design on testnet) —
+        // return as soon as the tx is submitted. The optimistic listing row
+        // shows it instantly; a background sync picks up real finality later.
         return txHash as string;
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -106,12 +101,6 @@ export function useGenLayer(walletAddress: string | null) {
           args: [params.listingId, qty],
           value: BigInt(params.priceWei) * BigInt(qty),
         });
-        await client.waitForTransactionReceipt({
-          hash: txHash,
-          status: TransactionStatus.ACCEPTED,
-          retries: 60,
-          interval: 5000,
-        });
         setLastTxHash(txHash as string);
         return txHash as string;
       } catch (err) {
@@ -137,12 +126,6 @@ export function useGenLayer(walletAddress: string | null) {
           functionName: "delist",
           args: [params.listingId],
           value: BigInt(0),
-        });
-        await client.waitForTransactionReceipt({
-          hash: txHash,
-          status: TransactionStatus.ACCEPTED,
-          retries: 60,
-          interval: 5000,
         });
         setLastTxHash(txHash as string);
         return txHash as string;
