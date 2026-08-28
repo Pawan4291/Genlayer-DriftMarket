@@ -24,16 +24,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Confirm chain state
-    const chainListing = await getListing(listingId);
-
-    await db
-      .update(listings)
-      .set({
-        active: chainListing.active,
-        lastSyncedAt: new Date(),
-      })
-      .where(eq(listings.id, listingId));
+    // Optimistic (not-yet-finalized) listings have negative ids and don't
+    // exist on-chain yet — just trust the frontend's confirmed tx for those.
+    if (listingId >= 0) {
+      const chainListing = await getListing(listingId);
+      await db
+        .update(listings)
+        .set({ active: chainListing.active, lastSyncedAt: new Date() })
+        .where(eq(listings.id, listingId));
+    } else {
+      await db
+        .update(listings)
+        .set({ active: false, lastSyncedAt: new Date() })
+        .where(eq(listings.id, listingId));
+    }
 
     await db
       .insert(activityEvents)

@@ -19,6 +19,7 @@ interface FormData {
   description: string;
   floorPriceGEN: string;
   supply: string;
+  maxPerWallet: string;
   imageUrl: string;
 }
 
@@ -30,6 +31,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
     description: "",
     floorPriceGEN: "",
     supply: "1",
+    maxPerWallet: "",
     imageUrl: "",
   });
   const [step, setStep] = useState<"form" | "pending" | "success">("form");
@@ -65,6 +67,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
         description: form.description,
         floorPriceWei,
         supply: parseInt(form.supply, 10),
+        maxPerWallet: form.maxPerWallet ? parseInt(form.maxPerWallet, 10) : 0,
         feeWei: "0",
       });
       setTxHash(hash);
@@ -74,8 +77,9 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
       await fetch("/api/listings/optimistic", {
         method: "POST",
         body: JSON.stringify({ txHash: hash, title: form.title, description: form.description,
-          floorPriceWei, supply: parseInt(form.supply, 10), imageUrl: form.imageUrl,
-          seller: walletAddress }),
+          floorPriceWei, supply: parseInt(form.supply, 10),
+          maxPerWallet: form.maxPerWallet ? parseInt(form.maxPerWallet, 10) : 0,
+          imageUrl: form.imageUrl, seller: walletAddress }),
       });
     } catch {
       setStep("form");
@@ -217,7 +221,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                 </div>
               </div>
 
-              {/* Price + Supply */}
+              {/* Price + Supply + Max Per Wallet */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
@@ -255,6 +259,20 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                   />
                   {errors.supply && <p className="text-xs text-red-500 mt-1">{errors.supply}</p>}
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1.5 block">
+                  Max Per Wallet
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.maxPerWallet}
+                  onChange={(e) => setForm({ ...form, maxPerWallet: e.target.value })}
+                  placeholder="Blank = unlimited"
+                  className="w-full px-4 py-3 border border-black/10 rounded-xl text-sm focus:outline-none focus:border-black/30 transition-colors"
+                />
               </div>
 
               {/* Live preview */}
@@ -395,7 +413,7 @@ export default function CreatePage({ walletAddress, onConnect, onNavigate }: Cre
                 <button
                   onClick={() => {
                     setStep("form");
-                    setForm({ title: "", description: "", floorPriceGEN: "", supply: "1", imageUrl: "" });
+                    setForm({ title: "", description: "", floorPriceGEN: "", supply: "1", maxPerWallet: "", imageUrl: "" });
                     setTxHash(null);
                     setErrors({});
                   }}

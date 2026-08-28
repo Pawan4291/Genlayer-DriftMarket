@@ -53,6 +53,7 @@ export async function syncListings(): Promise<{ synced: number; updated: number 
         floorPrice: chainListing.floor_price,
         currentPrice: chainListing.current_price,
         supply: chainListing.supply,
+        maxPerWallet: chainListing.max_per_wallet,
         sold: chainListing.sold,
         cyclesRun: chainListing.cycles_run,
         active: chainListing.active,

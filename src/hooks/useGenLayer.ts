@@ -51,6 +51,7 @@ export function useGenLayer(walletAddress: string | null) {
       description: string;
       floorPriceWei: string;
       supply: number;
+      maxPerWallet?: number;
       feeWei?: string;
       imageUrl?: string;
     }): Promise<string> => {
@@ -61,7 +62,13 @@ export function useGenLayer(walletAddress: string | null) {
         const txHash = await client.writeContract({
           address: requireContract(),
           functionName: "create_listing",
-          args: [params.title, params.description, params.floorPriceWei, params.supply],
+          args: [
+            params.title,
+            params.description,
+            params.floorPriceWei,
+            params.supply,
+            params.maxPerWallet ?? 0,
+          ],
           value: BigInt(params.feeWei ?? "0"),
         });
         await client.waitForTransactionReceipt({
@@ -87,16 +94,17 @@ export function useGenLayer(walletAddress: string | null) {
   );
 
   const buyListing = useCallback(
-    async (params: { listingId: number; priceWei: string }): Promise<string> => {
+    async (params: { listingId: number; priceWei: string; quantity?: number }): Promise<string> => {
       setIsPending(true);
       setError(null);
       try {
         const client = getClient(true);
+        const qty = params.quantity ?? 1;
         const txHash = await client.writeContract({
           address: requireContract(),
           functionName: "buy",
-          args: [params.listingId],
-          value: BigInt(params.priceWei),
+          args: [params.listingId, qty],
+          value: BigInt(params.priceWei) * BigInt(qty),
         });
         await client.waitForTransactionReceipt({
           hash: txHash,

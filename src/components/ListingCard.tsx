@@ -14,6 +14,7 @@ export interface ListingData {
   floorPrice: string;
   currentPrice: string;
   supply: string;
+  maxPerWallet?: string;
   sold: string;
   cyclesRun: string;
   active: boolean;
@@ -35,7 +36,7 @@ interface PricePoint {
 interface ListingCardProps {
   listing: ListingData;
   walletAddress: string | null;
-  onBuy: (listingId: number, priceWei: string) => Promise<void>;
+  onBuy: (listingId: number, priceWei: string, quantity: number) => Promise<void>;
   onDelist: (listingId: number) => Promise<void>;
   onAgentCycle?: (listingId: number) => Promise<void>;
   priceHistory?: PricePoint[];
@@ -56,10 +57,15 @@ export default function ListingCard({
   const [showChart, setShowChart] = useState(false);
   const [showDelistConfirm, setShowDelistConfirm] = useState(false);
   const [showBuyConfirm, setShowBuyConfirm] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+
+  const remaining = Number(listing.supply) - Number(listing.sold);
+  const maxBuyable = Math.max(1, remaining);
 
   const isSeller =
     walletAddress &&
     listing.seller.toLowerCase() === walletAddress.toLowerCase();
+  const isPendingFinality = listing.id < 0;
 
   const pct = soldPct(listing.sold, listing.supply);
   const currentGen = weiToGen(listing.currentPrice);
@@ -214,36 +220,69 @@ export default function ListingCard({
         </AnimatePresence>
 
         {/* Actions */}
-        {listing.active && (
+        {isPendingFinality && (
+          <div className="text-xs text-center text-black/40 py-2.5 border border-black/10 rounded-xl bg-black/[0.02]">
+            Finalizing on-chain — buy/delist available once confirmed
+          </div>
+        )}
+        {listing.active && !isPendingFinality && (
           <div className="flex gap-2">
             {!isSeller ? (
               <>
                 {!showBuyConfirm ? (
-                  <button
-                    onClick={() => walletAddress ? setShowBuyConfirm(true) : undefined}
-                    disabled={isBuying || !walletAddress}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-black/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {isBuying ? (
-                      <>
-                        <span className="w-3.5 h-3.5 border border-white/40 border-t-white rounded-full animate-spin" />
-                        Buying…
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                        {walletAddress ? "Buy Now" : "Connect Wallet"}
-                      </>
+                  <div className="flex-1 flex flex-col gap-2">
+                    {maxBuyable > 1 && (
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                          className="w-7 h-7 border border-black/10 rounded-lg text-sm hover:bg-black/5"
+                        >
+                          −
+                        </button>
+                        <span className="text-sm font-mono w-6 text-center">{quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((q) => Math.min(maxBuyable, q + 1))}
+                          className="w-7 h-7 border border-black/10 rounded-lg text-sm hover:bg-black/5"
+                        >
+                          +
+                        </button>
+                        <span className="text-xs text-black/30 font-mono">
+                          {remaining} left
+                          {listing.maxPerWallet && Number(listing.maxPerWallet) > 0
+                            ? ` · max ${listing.maxPerWallet}/wallet`
+                            : ""}
+                        </span>
+                      </div>
                     )}
-                  </button>
+                    <button
+                      onClick={() => walletAddress ? setShowBuyConfirm(true) : undefined}
+                      disabled={isBuying || !walletAddress}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-black/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {isBuying ? (
+                        <>
+                          <span className="w-3.5 h-3.5 border border-white/40 border-t-white rounded-full animate-spin" />
+                          Buying…
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-3.5 h-3.5" />
+                          {walletAddress ? "Buy Now" : "Connect Wallet"}
+                        </>
+                      )}
+                    </button>
+                  </div>
                 ) : (
                   <div className="flex-1">
                     <ConfirmInline
-                      message={`Buy for ${currentGen} GEN? This is a real transaction on testnet-bradbury.`}
-                      confirmLabel={`Pay ${currentGen} GEN`}
+                      message={`Buy ${quantity} for ${(currentPriceNum * quantity).toFixed(4)} GEN? This is a real transaction on testnet-bradbury.`}
+                      confirmLabel={`Pay ${(currentPriceNum * quantity).toFixed(4)} GEN`}
                       onConfirm={async () => {
-                        await onBuy(listing.id, listing.currentPrice);
+                        await onBuy(listing.id, listing.currentPrice, quantity);
                         setShowBuyConfirm(false);
+                        setQuantity(1);
                       }}
                       onCancel={() => setShowBuyConfirm(false)}
                       danger={false}

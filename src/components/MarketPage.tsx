@@ -100,10 +100,10 @@ export default function MarketPage({ walletAddress }: MarketPageProps) {
     }
   };
 
-  const handleBuy = async (listingId: number, priceWei: string) => {
+  const handleBuy = async (listingId: number, priceWei: string, quantity: number) => {
     setBuyingId(listingId);
     try {
-      const txHash = await buyListing({ listingId, priceWei });
+      const txHash = await buyListing({ listingId, priceWei, quantity });
       await fetch("/api/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

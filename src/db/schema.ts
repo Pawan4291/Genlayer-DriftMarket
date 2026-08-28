@@ -23,6 +23,7 @@ export const listings = pgTable(
     floorPrice: text("floor_price").notNull(), // stored as string to preserve u256
     currentPrice: text("current_price").notNull(),
     supply: text("supply").notNull(),
+    maxPerWallet: text("max_per_wallet"),
     sold: text("sold").notNull(),
     cyclesRun: text("cycles_run").notNull(),
     active: boolean("active").notNull().default(true),

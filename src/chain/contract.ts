@@ -12,6 +12,7 @@ export interface ChainListing {
   floor_price: string;
   current_price: string;
   supply: string;
+  max_per_wallet: string;
   sold: string;
   cycles_run: string;
   active: boolean;
@@ -40,6 +41,7 @@ function normalizeListing(raw: unknown): ChainListing {
   return {
     seller: String(r.seller ?? ""),
     title: String(r.title ?? ""),
+    max_per_wallet: safeStr(r.max_per_wallet ?? 0),
     description: String(r.description ?? ""),
     floor_price: safeStr(r.floor_price),
     current_price: safeStr(r.current_price),

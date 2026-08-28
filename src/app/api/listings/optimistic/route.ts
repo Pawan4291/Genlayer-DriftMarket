@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       floorPrice: String(floorPriceWei),
       currentPrice: String(floorPriceWei),
       supply: String(supply),
+      maxPerWallet: body.maxPerWallet ? String(body.maxPerWallet) : null,
       sold: "0",
       cyclesRun: "0",
       active: true,
