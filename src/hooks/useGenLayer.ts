@@ -98,7 +98,7 @@ export function useGenLayer(walletAddress: string | null) {
         const txHash = await client.writeContract({
           address: requireContract(),
           functionName: "buy",
-          args: [params.listingId, qty],
+          args: [BigInt(params.listingId), BigInt(qty)],
           value: BigInt(params.priceWei) * BigInt(qty),
         });
         setLastTxHash(txHash as string);
@@ -124,7 +124,7 @@ export function useGenLayer(walletAddress: string | null) {
         const txHash = await client.writeContract({
           address: requireContract(),
           functionName: "delist",
-          args: [params.listingId],
+          args: [BigInt(params.listingId)],
           value: BigInt(0),
         });
         setLastTxHash(txHash as string);
