@@ -83,7 +83,11 @@ export default function MarketPage({ walletAddress }: MarketPageProps) {
 
   useEffect(() => {
     loadListings();
-    const interval = setInterval(() => loadListings(true), 30_000);
+    const syncAndReload = async () => {
+      await fetch("/api/sync", { method: "POST" }).catch(() => {});
+      await loadListings(true);
+    };
+    const interval = setInterval(syncAndReload, 30_000);
     return () => clearInterval(interval);
   }, [loadListings]);
 
