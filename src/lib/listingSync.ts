@@ -6,7 +6,7 @@
 import { db } from "@/db";
 import { listings, syncCursors, activityEvents } from "@/db/schema";
 import { totalListings, getListing } from "@/chain/contract";
-import { eq } from "drizzle-orm";
+import { eq, and, lt, ilike } from "drizzle-orm";
 
 async function getLastSyncedCount(): Promise<number> {
   const row = await db
@@ -43,6 +43,23 @@ export async function syncListings(): Promise<{ synced: number; updated: number 
   // Insert brand-new listings
   for (let i = lastSynced; i < chainTotal; i++) {
     const chainListing = await getListing(i);
+
+    // Find the matching optimistic row (negative id) this real listing
+    // came from, so we can carry over its image (chain state has no images).
+    const optimisticMatch = await db
+      .select()
+      .from(listings)
+      .where(
+        and(
+          lt(listings.id, 0),
+          eq(listings.seller, chainListing.seller.toLowerCase()),
+          ilike(listings.title, chainListing.title)
+        )
+      )
+      .limit(1);
+
+    const carriedImageUrl = optimisticMatch[0]?.imageUrl ?? null;
+
     await db
       .insert(listings)
       .values({
@@ -57,9 +74,16 @@ export async function syncListings(): Promise<{ synced: number; updated: number 
         sold: chainListing.sold,
         cyclesRun: chainListing.cycles_run,
         active: chainListing.active,
+        imageUrl: carriedImageUrl,
         lastSyncedAt: new Date(),
       })
       .onConflictDoNothing();
+
+    // Now that the real row exists with the carried-over image, the
+    // optimistic placeholder is redundant — remove it.
+    if (optimisticMatch[0]) {
+      await db.delete(listings).where(eq(listings.id, optimisticMatch[0].id));
+    }
 
     // Record create event in activity feed
     await db
