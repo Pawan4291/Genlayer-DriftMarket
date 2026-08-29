@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { walletPurchaseCount } from "@/chain/contract";
+import { db } from "@/db";
+import { purchases } from "@/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -9,7 +11,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "listingId and wallet required" }, { status: 400 });
   }
   try {
-    const count = await walletPurchaseCount(listingId, wallet);
+    const rows = await db
+      .select({ quantity: purchases.quantity })
+      .from(purchases)
+      .where(and(eq(purchases.listingId, listingId), eq(purchases.buyer, wallet.toLowerCase())));
+    const count = rows.reduce((sum, r) => sum + Number(r.quantity), 0);
     return NextResponse.json({ count });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
