@@ -41,14 +41,16 @@ function normalizeListing(raw: unknown): ChainListing {
   return {
     seller: String(r.seller ?? ""),
     title: String(r.title ?? ""),
-    max_per_wallet: safeStr(r.max_per_wallet ?? 0),
+
     description: String(r.description ?? ""),
     floor_price: safeStr(r.floor_price),
     current_price: safeStr(r.current_price),
     supply: safeStr(r.supply),
+    max_per_wallet: safeStr(r.max_per_wallet ?? 0),
     sold: safeStr(r.sold),
     cycles_run: safeStr(r.cycles_run),
     active: Boolean(r.active),
+
   };
 }
 
