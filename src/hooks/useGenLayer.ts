@@ -65,7 +65,7 @@ export function useGenLayer(walletAddress: string | null) {
           args: [
             params.title,
             params.description,
-            params.floorPriceWei,
+            BigInt(params.floorPriceWei),
             params.supply,
             params.maxPerWallet ?? 0,
           ],
