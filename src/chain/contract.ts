@@ -65,6 +65,17 @@ export async function totalListings(): Promise<number> {
   return Number(result);
 }
 
+/** Read how many units this wallet already bought for a listing */
+export async function walletPurchaseCount(listingId: number, wallet: string): Promise<number> {
+  const client = getReadClient();
+  const result = await client.readContract({
+    address: requireAddress(),
+    functionName: "wallet_purchase_count",
+    args: [listingId, wallet],
+  });
+  return Number(result);
+}
+
 /** Read a single listing by on-chain index */
 export async function getListing(listingId: number): Promise<ChainListing> {
   const client = getReadClient();

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, TrendingDown, Zap, ShoppingCart, Users, Clock, ExternalLink } from "lucide-react";
 import { weiToGen, soldPct, shortAddr } from "@/lib/format";
@@ -58,9 +58,23 @@ export default function ListingCard({
   const [showDelistConfirm, setShowDelistConfirm] = useState(false);
   const [showBuyConfirm, setShowBuyConfirm] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [alreadyBought, setAlreadyBought] = useState(0);
+
+  useEffect(() => {
+    if (!walletAddress || !listing.maxPerWallet || Number(listing.maxPerWallet) <= 0) return;
+    fetch(`/api/wallet/purchase-count?listingId=${listing.id}&wallet=${walletAddress}`)
+      .then((r) => r.json())
+      .then((d) => setAlreadyBought(d.count ?? 0))
+      .catch(() => {});
+  }, [walletAddress, listing.id, listing.maxPerWallet]);
 
   const remaining = Number(listing.supply) - Number(listing.sold);
-  const maxBuyable = Math.max(1, remaining);
+  const walletCapTotal = listing.maxPerWallet && Number(listing.maxPerWallet) > 0
+    ? Number(listing.maxPerWallet)
+    : Infinity;
+  const walletCapLeft = Math.max(0, walletCapTotal - alreadyBought);
+  const maxBuyable = Math.max(1, Math.min(remaining, walletCapLeft || 1));
+  const walletLimitReached = walletCapTotal !== Infinity && walletCapLeft <= 0;
 
   const isSeller =
     walletAddress &&
@@ -258,7 +272,7 @@ export default function ListingCard({
                     )}
                     <button
                       onClick={() => walletAddress ? setShowBuyConfirm(true) : undefined}
-                      disabled={isBuying || !walletAddress}
+                      disabled={isBuying || !walletAddress || walletLimitReached}
                       className="w-full flex items-center justify-center gap-2 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-black/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       {isBuying ? (
@@ -273,6 +287,11 @@ export default function ListingCard({
                         </>
                       )}
                     </button>
+                    {walletLimitReached && (
+                      <p className="text-xs text-red-500 text-center mt-1">
+                        You've reached the {walletCapTotal}-per-wallet limit for this item.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="flex-1">
