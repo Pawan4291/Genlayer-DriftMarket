@@ -108,13 +108,22 @@ export default function MarketPage({ walletAddress }: MarketPageProps) {
     setBuyingId(listingId);
     try {
       const txHash = await buyListing({ listingId, priceWei, quantity });
+
+      // Optimistically reflect the purchase immediately — chain state
+      // (sold count, wallet limit) hasn't settled yet at this point.
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === listingId ? { ...l, sold: String(Number(l.sold) + quantity) } : l
+        )
+      );
+
       await fetch("/api/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ txHash, listingId, buyer: walletAddress, quantity }),
-      });
+      }).catch(() => {}); // best-effort; optimistic update already applied
+
       showToast(`Purchase confirmed! Tx: ${txHash.slice(0, 10)}…`);
-      await loadListings(true);
     } catch (err) {
       showToast((err as Error).message ?? "Purchase failed", "error");
     } finally {

@@ -300,6 +300,7 @@ export default function ListingCard({
                       confirmLabel={`Pay ${(currentPriceNum * quantity).toFixed(4)} GEN`}
                       onConfirm={async () => {
                         await onBuy(listing.id, listing.currentPrice, quantity);
+                        setAlreadyBought((prev) => prev + quantity);
                         setShowBuyConfirm(false);
                         setQuantity(1);
                       }}
