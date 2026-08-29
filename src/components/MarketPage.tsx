@@ -18,12 +18,13 @@ interface PricePoint {
 
 interface MarketPageProps {
   walletAddress: string | null;
+  onNavigate: (page: string) => void;
 }
 
 type FilterMode = "all" | "active" | "mine";
 type SortMode = "newest" | "price-asc" | "price-desc" | "sold";
 
-export default function MarketPage({ walletAddress }: MarketPageProps) {
+export default function MarketPage({ walletAddress, onNavigate }: MarketPageProps) {
   const [listings, setListings] = useState<ListingData[]>([]);
   const [priceHistories, setPriceHistories] = useState<Record<number, PricePoint[]>>({});
   const [loading, setLoading] = useState(true);
@@ -398,16 +399,26 @@ export default function MarketPage({ walletAddress }: MarketPageProps) {
             <Package className="w-9 h-9 text-black/15" />
           </div>
           <h3 className="text-xl font-bold mb-2">
-            {search ? "No matches" : "No listings yet"}
+            {search ? "No matches" : filter === "mine" ? "You haven't listed anything" : "No listings yet"}
           </h3>
           <p className="text-sm text-black/40 mb-8 max-w-xs mx-auto">
             {search
               ? "Try different keywords or clear the search."
-              : "Deploy the contract and create the first listing. Every listing you see will be a real on-chain entry."}
+              : filter === "mine"
+              ? "NFTs you create with this wallet will show up here."
+              : "Be the first to create a listing. Every listing you see will be a real on-chain entry."}
           </p>
-          {!search && (
-            <a
-              href="https://studio.genlayer.com"
+          {!search && filter === "mine" ? (
+            <button
+              onClick={() => onNavigate("create")}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-black/80 transition-colors"
+            >
+              Create a Listing
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : !search ? (
+            
+             <a href="https://studio.genlayer.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-black/80 transition-colors"
@@ -415,7 +426,7 @@ export default function MarketPage({ walletAddress }: MarketPageProps) {
               Open GenLayer Studio
               <ArrowRight className="w-4 h-4" />
             </a>
-          )}
+          ) : null}
         </motion.div>
       ) : (
         <AnimatePresence mode="popLayout">

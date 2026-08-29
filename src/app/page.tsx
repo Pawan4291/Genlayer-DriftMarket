@@ -50,7 +50,7 @@ export default function App() {
               exit="exit"
               transition={{ duration: 0.2 }}
             >
-              <MarketPage walletAddress={wallet.address} />
+              <MarketPage walletAddress={wallet.address} onNavigate={setPage} />
             </motion.div>
           )}
 
