@@ -65,17 +65,6 @@ export async function totalListings(): Promise<number> {
   return Number(result);
 }
 
-/** Read how many units this wallet already bought for a listing */
-export async function walletPurchaseCount(listingId: number, wallet: string): Promise<number> {
-  const client = getReadClient();
-  const result = await client.readContract({
-    address: requireAddress(),
-    functionName: "wallet_purchase_count",
-    args: [listingId, wallet],
-  });
-  return Number(result);
-}
-
 /** Read a single listing by on-chain index */
 export async function getListing(listingId: number): Promise<ChainListing> {
   const client = getReadClient();
@@ -85,6 +74,16 @@ export async function getListing(listingId: number): Promise<ChainListing> {
     args: [listingId],
   });
   return normalizeListing(result);
+}
+
+export async function walletPurchaseCount(listingId: number, wallet: string): Promise<number> {
+  const client = getReadClient();
+  const result = await client.readContract({
+    address: requireAddress(),
+    functionName: "wallet_purchase_count",
+    args: [BigInt(listingId), wallet],
+  });
+  return Number(result);
 }
 
 /** Read all listings by iterating total_listings then get_listing */
@@ -108,7 +107,7 @@ export async function runAgentCycle(listingId: number): Promise<string> {
   const txHash = await client.writeContract({
     address: requireAddress(),
     functionName: "run_agent_cycle",
-    args: [listingId],
+    args: [BigInt(listingId)],
     value: BigInt(0),
   });
   await client.waitForTransactionReceipt({

@@ -124,6 +124,7 @@ export async function runAgentCycleAll(): Promise<AgentCycleResult[]> {
 
   const results: AgentCycleResult[] = [];
   for (const row of activeListings) {
+    if (row.id < 0) continue; // skip listings still finalizing on-chain
     try {
       const result = await runAgentCycleForListing(row.id);
       results.push(result);

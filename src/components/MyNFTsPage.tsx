@@ -14,6 +14,7 @@ interface Purchase {
   seller: string;
   titleSnapshot: string;
   priceAtPurchaseWei: string;
+  quantity: string;
   purchasedAt: string;
 }
 
@@ -197,7 +198,14 @@ export default function MyNFTsPage({ walletAddress, onConnect, onNavigate }: MyN
         ) : (
           <AnimatePresence>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {purchases.map((purchase, i) => (
+              {Object.values(
+                purchases.reduce((acc, p) => {
+                  const key = p.listingId;
+                  if (!acc[key]) acc[key] = { ...p, totalQuantity: Number(p.quantity) };
+                  else acc[key].totalQuantity += Number(p.quantity);
+                  return acc;
+                }, {} as Record<number, Purchase & { totalQuantity: number }>)
+              ).map((purchase, i) => (
                 <motion.div
                   key={purchase.id}
                   initial={{ opacity: 0, y: 16 }}
@@ -211,6 +219,11 @@ export default function MyNFTsPage({ walletAddress, onConnect, onNavigate }: MyN
                       <div className="flex items-center gap-1 mt-1">
                         <Tag className="w-3 h-3 text-black/30" />
                         <span className="text-xs text-black/40 font-mono">#{purchase.listingId}</span>
+                        {purchase.totalQuantity > 1 && (
+                          <span className="text-xs bg-black text-white px-1.5 py-0.5 rounded-full font-mono">
+                            ×{purchase.totalQuantity}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <a

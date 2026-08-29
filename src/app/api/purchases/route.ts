@@ -28,10 +28,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { txHash, listingId, buyer } = body as {
+    const { txHash, listingId, buyer, quantity } = body as {
       txHash: string;
       listingId: number;
       buyer: string;
+      quantity?: number;
     };
 
     if (!txHash || listingId === undefined || !buyer) {
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
         // Snapshot at purchase block
         titleSnapshot: chainListing.title,
         priceAtPurchaseWei: chainListing.current_price,
+        quantity: String(quantity ?? 1),
         purchasedAt: new Date(),
       })
       .onConflictDoNothing()

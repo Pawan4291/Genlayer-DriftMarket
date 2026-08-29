@@ -111,7 +111,7 @@ export default function MarketPage({ walletAddress }: MarketPageProps) {
       await fetch("/api/purchases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ txHash, listingId, buyer: walletAddress }),
+        body: JSON.stringify({ txHash, listingId, buyer: walletAddress, quantity }),
       });
       showToast(`Purchase confirmed! Tx: ${txHash.slice(0, 10)}…`);
       await loadListings(true);
