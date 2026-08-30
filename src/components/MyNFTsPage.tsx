@@ -64,12 +64,12 @@ export default function MyNFTsPage({ walletAddress, onConnect, onNavigate }: MyN
     setDelistingId(listingId);
     try {
       const txHash = await delistListing({ listingId });
+      setMyListings((prev) => prev.map((l) => (l.id === listingId ? { ...l, active: false } : l)));
       await fetch("/api/delist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ txHash, listingId, seller: walletAddress }),
-      });
-      await loadMyListings();
+      }).catch(() => {});
     } finally {
       setDelistingId(null);
     }

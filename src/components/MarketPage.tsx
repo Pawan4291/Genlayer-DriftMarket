@@ -50,11 +50,9 @@ export default function MarketPage({ walletAddress, onNavigate }: MarketPageProp
     else setLoading(true);
     try {
       const url =
-        filter === "active"
-          ? "/api/listings?active=true"
-          : filter === "mine" && walletAddress
-          ? `/api/listings?seller=${walletAddress}`
-          : "/api/listings";
+        filter === "mine" && walletAddress
+          ? `/api/listings?seller=${walletAddress}&active=true`
+          : "/api/listings?active=true"; // "all" and "active" both mean mintable-only now
       const res = await fetch(url);
       const data = await res.json();
       const rows: ListingData[] = data.listings ?? [];
@@ -81,6 +79,10 @@ export default function MarketPage({ walletAddress, onNavigate }: MarketPageProp
       setRefreshing(false);
     }
   }, [filter, walletAddress]);
+
+  useEffect(() => {
+    setSort(filter === "all" ? "sold" : "newest");
+  }, [filter]);
 
   useEffect(() => {
     loadListings();
@@ -136,13 +138,17 @@ export default function MarketPage({ walletAddress, onNavigate }: MarketPageProp
     setDelistingId(listingId);
     try {
       const txHash = await delistListing({ listingId });
+
+      // Optimistically hide it immediately — don't wait for chain finality
+      setListings((prev) => prev.map((l) => (l.id === listingId ? { ...l, active: false } : l)));
+
       await fetch("/api/delist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ txHash, listingId, seller: walletAddress }),
-      });
+      }).catch(() => {});
+
       showToast("Delisted successfully");
-      await loadListings(true);
     } catch (err) {
       showToast((err as Error).message ?? "Delist failed", "error");
     } finally {
