@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
-import ValidatorStrip from "@/components/ValidatorStrip";
 import MarketPage from "@/components/MarketPage";
 import CreatePage from "@/components/CreatePage";
 import ActivityPage from "@/components/ActivityPage";
@@ -21,8 +20,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Validator status strip at top */}
-      <ValidatorStrip />
+        {/* Validator status strip removed per request */}
 
       {/* Navigation */}
       <NavBar
