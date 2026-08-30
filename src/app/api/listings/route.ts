@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { listings, purchases } from "@/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
-
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -20,7 +19,7 @@ export async function GET(req: NextRequest) {
       query = query.where(eq(listings.active, true));
     }
     if (seller) {
-      query = query.where(eq(listings.seller, seller.toLowerCase()));
+      query = query.where(sql`LOWER(${listings.seller}) = LOWER(${seller})`);
     }
 
     const rows = await query;
