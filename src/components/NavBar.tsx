@@ -33,7 +33,7 @@ export default function NavBar({ wallet, activePage, onNavigate }: NavBarProps) 
             className="w-7 h-7 bg-black rounded-lg flex items-center justify-center"
             whileHover={{ rotate: 15 }}
           >
-            <Zap className="w-4 h-4 text-white" />
+            <img src="/logo.png" alt="DriftMarket" className="w-4 h-4 object-contain" />
           </motion.div>
           <span>DriftMarket</span>
         </button>
