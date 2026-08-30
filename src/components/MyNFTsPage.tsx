@@ -13,6 +13,7 @@ interface Purchase {
   buyer: string;
   seller: string;
   titleSnapshot: string;
+  imageUrlSnapshot: string | null;
   priceAtPurchaseWei: string;
   quantity: string;
   purchasedAt: string;
@@ -211,8 +212,16 @@ export default function MyNFTsPage({ walletAddress, onConnect, onNavigate }: MyN
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="border border-black/10 rounded-2xl p-5 bg-white hover:shadow-lg transition-shadow group"
+                  className="border border-black/10 rounded-2xl overflow-hidden bg-white hover:shadow-lg transition-shadow group"
                 >
+                  {purchase.imageUrlSnapshot && (
+                    <img
+                      src={purchase.imageUrlSnapshot}
+                      alt={purchase.titleSnapshot}
+                      className="w-full h-40 object-cover"
+                    />
+                  )}
+                  <div className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-semibold text-sm leading-tight">{purchase.titleSnapshot}</h3>
@@ -253,6 +262,7 @@ export default function MyNFTsPage({ walletAddress, onConnect, onNavigate }: MyN
 
                   <div className="mt-2 font-mono text-xs text-black/20 truncate">
                     {purchase.txHash.slice(0, 10)}…{purchase.txHash.slice(-6)}
+                  </div>
                   </div>
                 </motion.div>
               ))}

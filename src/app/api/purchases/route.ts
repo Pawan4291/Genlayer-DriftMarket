@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
         seller: existingListing.seller,
         // Snapshot at purchase block
         titleSnapshot: chainListing.title,
+        imageUrlSnapshot: existingListing.imageUrl ?? null,
         priceAtPurchaseWei: chainListing.current_price,
         quantity: String(quantity ?? 1),
         purchasedAt: new Date(),
@@ -105,7 +106,6 @@ export async function POST(req: NextRequest) {
         occurredAt: new Date(),
       })
       .onConflictDoNothing();
-
     return NextResponse.json({ purchase: inserted }, { status: 201 });
   } catch (err) {
     console.error("POST /api/purchases error:", err);

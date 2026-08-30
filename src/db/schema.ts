@@ -73,6 +73,7 @@ export const purchases = pgTable(
     seller: varchar("seller", { length: 42 }).notNull(),
     // Snapshot at purchase-block (rule #5)
     titleSnapshot: text("title_snapshot").notNull(),
+    imageUrlSnapshot: text("image_url_snapshot"),
     priceAtPurchaseWei: text("price_at_purchase_wei").notNull(),
     quantity: text("quantity").notNull().default("1"),
     purchasedAt: timestamp("purchased_at").notNull().defaultNow(),
